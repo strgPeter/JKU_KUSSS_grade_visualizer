@@ -1,7 +1,5 @@
 package org.example
 
-import Scraper
-
 fun main() {
     println("Hello World!")
     val s = Scraper()

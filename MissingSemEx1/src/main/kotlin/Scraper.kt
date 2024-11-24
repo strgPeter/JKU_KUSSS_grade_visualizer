@@ -1,50 +1,62 @@
-import org.htmlunit.BrowserVersion;
-import org.htmlunit.Page;
-import org.htmlunit.WebClient;
-import org.htmlunit.html.*;
+package org.example
+import org.htmlunit.BrowserVersion
+import org.htmlunit.Page
+import org.htmlunit.WebClient
+import org.htmlunit.html.*
 
-import java.io.IOException;
-import java.util.Scanner;
+import java.io.IOException
+import java.util.Scanner
 
-public class Scraper {
-    public String getHtmlPage() {
-        try (final WebClient wc = new WebClient(BrowserVersion.CHROME)){
-            final HtmlPage kusssStartPage = wc.getPage("https://kusss.jku.at/kusss/index.action");
-
-            final HtmlPage loginpage = clickLogin(kusssStartPage);
-
-            return shibbolethLogin(loginpage).asNormalizedText();
-        } catch (IOException e) {
-            return "";
+class Scraper {
+    fun getHtmlPage(): String {
+        return try {
+            WebClient(BrowserVersion.CHROME).use { wc ->
+                val kusssStartPage = wc.getPage<HtmlPage>("https://kusss.jku.at/kusss/index.action")
+                val shibbolethLoginPage = clickLogin(kusssStartPage)
+                val kusssHomePage = shibbolethLogin(shibbolethLoginPage)
+                val kusssGradeInfoPage = getGradeInfoPage(kusssHomePage)
+                kusssGradeInfoPage.asNormalizedText()
+            }
+        } catch (e: IOException) {
+            ""
         }
     }
 
-    private HtmlPage clickLogin(HtmlPage page) throws IOException {
-        final HtmlForm form = page.getFormByName("loginform");
-        final HtmlSubmitInput login = form.getInputByValue("Login");
-        return login.click();
+    @Throws(IOException::class)
+    private fun clickLogin(page: HtmlPage): HtmlPage {
+        val form = page.getFormByName("loginform")
+        val login = form.getInputByValue<HtmlSubmitInput>("Login")
+        return login.click()
     }
 
-    private HtmlPage shibbolethLogin(HtmlPage loginpage) throws IOException {
-        HtmlForm form = loginpage.getForms().get(0);
+    @Throws(IOException::class)
+    private fun shibbolethLogin(loginPage: HtmlPage): HtmlPage {
+        val form = loginPage.forms[0]
 
-        HtmlTextInput usernameField = form.getInputByName("j_username");
-        HtmlInput passwordField = form.getInputByName("j_password");
-        HtmlCheckBoxInput dontRememberLogin = form.getInputByName("donotcache");
-        HtmlSubmitInput submitButton = form.getInputByValue("Login");
+        val usernameField = form.getInputByName<HtmlTextInput>("j_username")
+        val passwordField = form.getInputByName<HtmlInput>("j_password")
+        val dontRememberLogin = form.getInputByName<HtmlCheckBoxInput>("donotcache")
+        val submitButton = form.getInputByValue<HtmlSubmitInput>("Login")
 
-        usernameField.setValueAttribute(readInput("Enter username: "));
-        passwordField.setValueAttribute(readInput("Enter password: "));
-        dontRememberLogin.setChecked(true);
-        HtmlPage resultPage = submitButton.click();
-        return resultPage;
+        usernameField.valueAttribute = readInput("Enter username: ")
+        passwordField.valueAttribute = readInput("Enter password: ")
+        dontRememberLogin.isChecked = true
+        return submitButton.click()
     }
 
-    private static String readInput(String msg){
-        //TODO: do some checks idk
-        System.out.print(msg);
-        Scanner scanner = new Scanner(System.in);
-        return scanner.nextLine();
+    private fun getGradeInfoPage(kusssHomePage: HtmlPage): HtmlPage {
+        // Find the link with the text "Results on my exams"
+        val resultsLink: HtmlAnchor? = kusssHomePage.getByXPath<HtmlAnchor>(
+            "//a[span/text()='Results on my exams']"
+        ).first()
+
+        val resultsPage: HtmlPage = resultsLink?.click() ?: kusssHomePage
+        return resultsPage
     }
 
+    private fun readInput(msg: String): String {
+        print(msg)
+        val scanner = Scanner(System.`in`)
+        return scanner.nextLine()
+    }
 }
