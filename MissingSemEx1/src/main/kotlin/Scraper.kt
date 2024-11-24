@@ -8,6 +8,7 @@ import java.io.IOException
 import java.util.Scanner
 
 class Scraper {
+
     fun getHtmlPage(): String {
         return try {
             WebClient(BrowserVersion.CHROME).use { wc ->
@@ -45,11 +46,11 @@ class Scraper {
     }
 
     private fun getGradeInfoPage(kusssHomePage: HtmlPage): HtmlPage {
-        // Find the link with the text "Results on my exams"
         val resultsLink: HtmlAnchor? = kusssHomePage.getByXPath<HtmlAnchor>(
             "//a[span/text()='Results on my exams']"
-        ).first()
+        ).firstOrNull()
 
+        //TODO: change return of parameter when no result found
         val resultsPage: HtmlPage = resultsLink?.click() ?: kusssHomePage
         return resultsPage
     }
