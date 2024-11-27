@@ -10,6 +10,9 @@ import java.util.Scanner
 class Scraper {
 
     fun getHtmlPage(): String {
+
+        java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
+
         return try {
             WebClient(BrowserVersion.CHROME).use { wc ->
                 val kusssStartPage = wc.getPage<HtmlPage>("https://kusss.jku.at/kusss/index.action")
