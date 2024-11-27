@@ -52,6 +52,24 @@ class Scraper {
 
         //TODO: change return of parameter when no result found
         val resultsPage: HtmlPage = resultsLink?.click() ?: kusssHomePage
+
+        val table: HtmlTable? =
+            resultsPage.getByXPath<HtmlTable>("/html/body/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td/div/table[2]")
+                .firstOrNull()
+
+        if (table != null) {
+            // Iterate over the rows of the table
+            for (row: HtmlTableRow in table.rows) {
+                println("Found row:")
+                // Iterate over the cells of the row
+                for (cell: HtmlTableCell in row.cells) {
+                    println("   Found cell: ${cell.asNormalizedText()}")
+                }
+            }
+        } else {
+            println("Table not found!")
+        }
+
         return resultsPage
     }
 
