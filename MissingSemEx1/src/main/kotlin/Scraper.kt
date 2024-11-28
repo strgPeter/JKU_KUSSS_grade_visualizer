@@ -1,6 +1,5 @@
 package org.example
 import org.htmlunit.BrowserVersion
-import org.htmlunit.Page
 import org.htmlunit.WebClient
 import org.htmlunit.html.*
 
@@ -9,28 +8,24 @@ import java.util.Scanner
 
 class Scraper {
 
-    fun getHtmlPage(): String {
-
-        java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
-
-        return try {
-            WebClient(BrowserVersion.CHROME).use { wc ->
-                val kusssStartPage = wc.getPage<HtmlPage>("https://kusss.jku.at/kusss/index.action")
-                val shibbolethLoginPage = clickLogin(kusssStartPage)
-                val kusssHomePage = shibbolethLogin(shibbolethLoginPage)
-                val kusssGradeInfoPage = getGradeInfoPage(kusssHomePage)
-                kusssGradeInfoPage.asNormalizedText()
-            }
-        } catch (e: IOException) {
-            ""
+    fun getHtmlTable(): HtmlTable? =
+        try {
+            val wCli = WebClient(BrowserVersion.CHROME)
+            val kusssStartPage = wCli.getPage<HtmlPage>("https://kusss.jku.at/kusss/index.action")
+            val shibbolethLoginPage = clickLogin(kusssStartPage)
+            val kusssHomePage = shibbolethLogin(shibbolethLoginPage)
+            //TODO: check if username and pswd are correct
+            getGradeInfoPage(kusssHomePage)
+        }catch (e: IOException){
+            println("Something went wrong while scraping")
+            println(e.message)
+            null
         }
-    }
 
     @Throws(IOException::class)
     private fun clickLogin(page: HtmlPage): HtmlPage {
         val form = page.getFormByName("loginform")
-        val login = form.getInputByValue<HtmlSubmitInput>("Login")
-        return login.click()
+        return form.getInputByValue<HtmlSubmitInput>("Login").click()
     }
 
     @Throws(IOException::class)
@@ -48,37 +43,15 @@ class Scraper {
         return submitButton.click()
     }
 
-    private fun getGradeInfoPage(kusssHomePage: HtmlPage): HtmlPage {
-        val resultsLink: HtmlAnchor? = kusssHomePage.getByXPath<HtmlAnchor>(
-            "//a[span/text()='Results on my exams']"
-        ).firstOrNull()
-
-        //TODO: change return of parameter when no result found
-        val resultsPage: HtmlPage = resultsLink?.click() ?: kusssHomePage
-
-        val table: HtmlTable? =
-            resultsPage.getByXPath<HtmlTable>("/html/body/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td/div/table[2]")
-                .firstOrNull()
-
-        if (table != null) {
-            // Iterate over the rows of the table
-            for (row: HtmlTableRow in table.rows) {
-                println("Found row:")
-                // Iterate over the cells of the row
-                for (cell: HtmlTableCell in row.cells) {
-                    println("   Found cell: ${cell.asNormalizedText()}")
-                }
-            }
-        } else {
-            println("Table not found!")
-        }
-
-        return resultsPage
+    private fun getGradeInfoPage(kusssHomePage: HtmlPage): HtmlTable {
+        val resultsLink: HtmlAnchor = kusssHomePage.getByXPath<HtmlAnchor>("//a[span/text()='Results on my exams']")[0]
+        return resultsLink.click<HtmlPage>().getByXPath<HtmlTable>("/html/body/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td/div/table[2]")[0]
     }
 
     private fun readInput(msg: String): String {
-        print(msg)
-        val scanner = Scanner(System.`in`)
-        return scanner.nextLine()
+        Scanner(System.`in`).use { scanner ->
+            print(msg)
+            return scanner.nextLine().trim()
+        }
     }
 }

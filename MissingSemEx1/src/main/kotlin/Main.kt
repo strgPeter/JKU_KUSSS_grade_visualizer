@@ -1,8 +1,7 @@
 package org.example
 
+import java.util.Date
+
 fun main() {
-    println("Hello World!")
-    val s = Scraper()
-    val page = s.getHtmlPage()
-    //println(page)
+
 }

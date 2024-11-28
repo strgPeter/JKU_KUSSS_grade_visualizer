@@ -7,21 +7,29 @@ data class Evaluation (
     val lvaId: String,
     val semester: String,
     val grade: Pair<String, Int>,
+    val ects: Int,
     val date: Date,
     val id: String
 ) : Comparable<Evaluation>{
     
     private fun getGradeNumeric(g: String): Int {
-        TODO("Not yet implemented")
+        return -1
     }
 
     override fun compareTo(other: Evaluation): Int {
-        TODO("Not yet implemented")
+        if (this.semester.takeWhile { it.isDigit() }.toInt() > other.semester.takeWhile { it.isDigit() }.toInt()) {
+            return 1
+        }else if (this.semester.takeWhile { it.isDigit() }.toInt() < other.semester.takeWhile { it.isDigit() }.toInt()){
+            return -1
+        }else{
+            val a = this.semester.last().compareTo(other.semester.last())
+            if (a != 0) return a
+            return this.lvaName.compareTo(other.lvaName, true)
+        }
     }
 
     override fun toString(): String {
-        TODO("Not yet implemented")
-        return super.toString()
+        return "$lvaName: ${grade.first}, $ects ECTS ($date)"
     }
 
 
