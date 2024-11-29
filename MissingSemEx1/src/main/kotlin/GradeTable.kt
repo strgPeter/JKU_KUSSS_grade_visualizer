@@ -1,12 +1,11 @@
 package org.example
 
-import org.htmlunit.html.HtmlTable
-import java.util.TreeSet
+import java.time.LocalDate
 
 class GradeTable {
-    private val table = TreeSet<Evaluation>()
+    private lateinit var table: List<Evaluation>
     var avgGrade: Double = -1.0
-    var sumEcts: Int = 0
+    var sumEcts: Double = 0.0
 
     init {
 
@@ -19,9 +18,21 @@ class GradeTable {
                 row.cells.any { it.tagName.equals("td", ignoreCase = true) }
             }
 
-            rows.forEach { println("Row data: ${it.asNormalizedText()}") }
+            table = rows
+                .map { row ->
+                    val cells = row.cells.map { it.asNormalizedText().trim() }
+                    Evaluation(
+                        lvaName = "${cells[1].substringBefore("(")}- ${cells[4]}",
+                        lvaId = cells[1].substringBefore(",").substringAfter("("),
+                        semester = cells[1].substringBefore(")").substringAfter(","),
+                        grade = cells[2] to Evaluation.getGradeNumeric(cells[2]),
+                        ects = cells[5].replace(',', '.').toDouble(),
+                        date = extrDate(cells[0]),
+                        id = cells[3]
+                    )}
+                .sorted()
 
-            println(rows.count())
+            table.forEach { println(it) }
 
             avgGrade = table
                 .filter { it.grade.second != -1 }
@@ -31,5 +42,11 @@ class GradeTable {
             sumEcts = table.sumOf { it.ects }
         }
 
+    }
+
+    private fun extrDate (s: String) : LocalDate {
+        val arr = s.split(".").map { it.toInt() }
+
+        return LocalDate.of(arr[2], arr[1], arr[0])
     }
 }

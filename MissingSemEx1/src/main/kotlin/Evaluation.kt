@@ -1,25 +1,27 @@
 package org.example
 
-import java.util.Date
+import java.time.LocalDate
 
 data class Evaluation (
     val lvaName: String,
     val lvaId: String,
     val semester: String,
     val grade: Pair<String, Int>,
-    val ects: Int,
-    val date: Date,
+    val ects: Double,
+    val date: LocalDate,
     val id: String
 ) : Comparable<Evaluation>{
-    
-    private fun getGradeNumeric(g: String): Int {
-        return when (g) {
-            "sehr gut" -> 1
-            "gut" -> 2
-            "befriedigend" -> 3
-            "genügend" -> 4
-            "ungenügend" -> 5
-            else -> -1 //mit erfolg Teilgenommen
+
+    companion object{
+        fun getGradeNumeric(g: String): Int {
+            return when (g) {
+                "sehr gut" -> 1
+                "gut" -> 2
+                "befriedigend" -> 3
+                "genügend" -> 4
+                "ungenügend" -> 5
+                else -> -1 //mit erfolg Teilgenommen
+            }
         }
     }
 
@@ -36,7 +38,7 @@ data class Evaluation (
     }
 
     override fun toString(): String {
-        return "$lvaName: ${grade.first}, $ects ECTS ($date)"
+        return "($semester)-$lvaName: ${grade.first}, $ects ECTS ($date)"
     }
 
 
