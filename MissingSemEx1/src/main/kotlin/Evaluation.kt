@@ -13,7 +13,14 @@ data class Evaluation (
 ) : Comparable<Evaluation>{
     
     private fun getGradeNumeric(g: String): Int {
-        return -1
+        return when (g) {
+            "sehr gut" -> 1
+            "gut" -> 2
+            "befriedigend" -> 3
+            "genügend" -> 4
+            "ungenügend" -> 5
+            else -> -1 //mit erfolg Teilgenommen
+        }
     }
 
     override fun compareTo(other: Evaluation): Int {

@@ -15,7 +15,7 @@ class Scraper {
             val shibbolethLoginPage = clickLogin(kusssStartPage)
             val kusssHomePage = shibbolethLogin(shibbolethLoginPage)
             //TODO: check if username and pswd are correct
-            getGradeInfoPage(kusssHomePage)
+            getGradeInfo(kusssHomePage)
         }catch (e: IOException){
             println("Something went wrong while scraping")
             println(e.message)
@@ -43,15 +43,14 @@ class Scraper {
         return submitButton.click()
     }
 
-    private fun getGradeInfoPage(kusssHomePage: HtmlPage): HtmlTable {
+    private fun getGradeInfo(kusssHomePage: HtmlPage): HtmlTable {
         val resultsLink: HtmlAnchor = kusssHomePage.getByXPath<HtmlAnchor>("//a[span/text()='Results on my exams']")[0]
         return resultsLink.click<HtmlPage>().getByXPath<HtmlTable>("/html/body/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td/div/table[2]")[0]
     }
 
     private fun readInput(msg: String): String {
-        Scanner(System.`in`).use { scanner ->
-            print(msg)
-            return scanner.nextLine().trim()
-        }
+        val scanner = Scanner(System.`in`)
+        print(msg)
+        return scanner.nextLine().trim()
     }
 }
