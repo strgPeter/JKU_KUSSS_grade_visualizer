@@ -67,17 +67,19 @@ class GradeTable {
         println("====Your Evaluations====\n")
 
         table.forEach { println(it) }
-        println("\nTotal avg: ${avgGrade}")
+        println("\nTotal avg: %.2f".format(avgGrade))
         println("Total ECTS: ${sumEcts}\n")
 
         println("------By Semester------")
         bySemester.forEach { sem ->
             println("${sem.key}:")
             sem.value.forEach { println("\t$it") }
-            println("\tAvg: ${sem.value
-                .filter { it.grade.second != -1 }
-                .map { it.grade.second }
-                .average()}")
+            println("\tAvg: %.2f".format(
+                sem.value
+                    .filter { it.grade.second != -1 }
+                    .map { it.grade.second }
+                    .average()
+            ))
             println("\tECTS: ${sem.value.sumOf { it.ects }}")
 
             println()
@@ -89,7 +91,7 @@ class GradeTable {
             println("${grade.key}:")
             grade.value.forEach { println("\t$it") }
             val n = grade.value.size.toDouble()
-            println("\tCount: $n (${n / count})\n")
+            println("\tCount: $n (%.2f)\n".format(n / count * 100))
         }
 
     }

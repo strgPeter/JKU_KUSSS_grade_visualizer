@@ -1,16 +1,29 @@
 package org.example
 import org.htmlunit.BrowserVersion
+import org.htmlunit.DefaultCssErrorHandler
 import org.htmlunit.WebClient
+import org.htmlunit.cssparser.parser.CSSParseException
 import org.htmlunit.html.*
 
 import java.io.IOException
 import java.util.Scanner
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class Scraper {
 
     fun getHtmlTable(): HtmlTable? =
         try {
             val wCli = WebClient(BrowserVersion.CHROME)
+            Logger.getLogger("com.gargoylesoftware").level = Level.OFF
+            Logger.getLogger("org.htmlunit").level = Level.OFF
+            wCli.setIncorrectnessListener { _, _ -> }
+            wCli.cssErrorHandler = object : DefaultCssErrorHandler() {
+                override fun warning(exception: CSSParseException?) {}
+                override fun error(exception: CSSParseException?) {}
+                override fun fatalError(exception: CSSParseException?) {}
+            }
+
             val kusssStartPage = wCli.getPage<HtmlPage>("https://kusss.jku.at/kusss/index.action")
             val shibbolethLoginPage = clickLogin(kusssStartPage)
             val kusssHomePage = shibbolethLogin(shibbolethLoginPage)
