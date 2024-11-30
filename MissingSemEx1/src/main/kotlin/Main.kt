@@ -4,4 +4,5 @@ import java.util.Date
 
 fun main() {
     val gt = GradeTable()
+    gt.renderTxt()
 }

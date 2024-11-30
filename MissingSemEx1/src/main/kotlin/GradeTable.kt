@@ -1,11 +1,27 @@
 package org.example
 
 import java.time.LocalDate
+import kotlin.math.cbrt
 
 class GradeTable {
-    private lateinit var table: List<Evaluation>
-    var avgGrade: Double = -1.0
-    var sumEcts: Double = 0.0
+    private var table: List<Evaluation> = emptyList()
+
+    val bySemester: Map<String, List<Evaluation>>
+        get() = table.groupBy { it.semester }
+
+    val byGrade: Map<Pair<String, Int>, List<Evaluation>>
+        get() = table.groupBy { it.grade }.toSortedMap(compareBy { it.second })
+
+    val avgGrade: Double
+        get() = table
+            .filter { it.grade.second != -1 }
+            .map { it.grade.second }
+            .average()
+
+    val sumEcts: Double
+        get() = table.sumOf { it.ects }
+
+    val count: Int  get() = table.size
 
     init {
 
@@ -19,9 +35,9 @@ class GradeTable {
             }
 
             table = rows
-                .map { row ->
+                .mapNotNull { row ->
                     val cells = row.cells.map { it.asNormalizedText().trim() }
-                    Evaluation(
+                    val evaluation = Evaluation(
                         lvaName = "${cells[1].substringBefore("(")}- ${cells[4]}",
                         lvaId = cells[1].substringBefore(",").substringAfter("("),
                         semester = cells[1].substringBefore(")").substringAfter(","),
@@ -29,19 +45,61 @@ class GradeTable {
                         ects = cells[5].replace(',', '.').toDouble(),
                         date = extrDate(cells[0]),
                         id = cells[3]
-                    )}
+                    )
+                    evaluation
+                }
+                .fold(mutableListOf<Evaluation>()) { mListAccumul, newEval ->
+                    val existingEval = mListAccumul.find { it.id == newEval.id }
+                    if (existingEval == null) {
+                        mListAccumul.add(newEval)
+                    } else if (newEval.grade.second > existingEval.grade.second) {
+                        mListAccumul.remove(existingEval)
+                        mListAccumul.add(newEval)
+                    }
+                    mListAccumul
+                }
                 .sorted()
-
-            table.forEach { println(it) }
-
-            avgGrade = table
-                .filter { it.grade.second != -1 }
-                .map { it.grade.second }
-                .average()
-
-            sumEcts = table.sumOf { it.ects }
         }
 
+    }
+
+    fun renderTxt(){
+        println("====Your Evaluations====\n")
+
+        table.forEach { println(it) }
+        println("\nTotal avg: ${avgGrade}")
+        println("Total ECTS: ${sumEcts}\n")
+
+        println("------By Semester------")
+        bySemester.forEach { sem ->
+            println("${sem.key}:")
+            sem.value.forEach { println("\t$it") }
+            println("\tAvg: ${sem.value
+                .filter { it.grade.second != -1 }
+                .map { it.grade.second }
+                .average()}")
+            println("\tECTS: ${sem.value.sumOf { it.ects }}")
+
+            println()
+        }
+
+        println("--------By Grade--------")
+        byGrade
+            .forEach { grade ->
+            println("${grade.key}:")
+            grade.value.forEach { println("\t$it") }
+            val n = grade.value.size.toDouble()
+            println("\tCount: $n (${n / count})\n")
+        }
+
+    }
+
+    private fun containsById (id: String) : Boolean{
+        table.forEach {
+            if (it.id == id) return true
+        }
+
+        return false
     }
 
     private fun extrDate (s: String) : LocalDate {
