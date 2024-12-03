@@ -26,6 +26,8 @@ class GradeTable {
 
     private val count: Int  get() = table.size
 
+    private val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HHmmss"))
+
     init {
 
         val scraper = Scraper()
@@ -100,8 +102,6 @@ class GradeTable {
     }
 
     fun saveAsCsv(path: String){
-
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HHmmss"))
         val csvFile = File(path, "grade_table_$timestamp.csv")
 
         csvFile.printWriter().use { writer ->
@@ -110,12 +110,12 @@ class GradeTable {
             // Write data rows
             table.forEach { eval ->
                 writer.println(
-                    "${eval.lvaName}," +
-                            "${eval.lvaId}," +
-                            "${eval.semester}," +
-                            "${eval.grade.first}," +
-                            "${eval.ects}," +
-                            "${eval.date},"
+                    "${eval.lvaName};" +
+                            "${eval.lvaId};" +
+                            "${eval.semester};" +
+                            "${eval.grade.first};" +
+                            "${eval.ects};" +
+                            "${eval.date}"
                 )
             }
         }
@@ -123,8 +123,16 @@ class GradeTable {
         println("CSV file saved at: ${csvFile.absolutePath}")
     }
 
-    fun saveAsHtml(path: String){
-        println("Not implemented yet")
+    fun saveAsHtml(path: String) {
+        val hr = HtmlRenderer()
+
+        val htmlFile = File(path, "grades_$timestamp.html")
+
+        htmlFile.printWriter().use { writer ->
+            writer.println(hr.generateHtml())
+        }
+
+        println("HTML file saved at: ${htmlFile.absolutePath}")
     }
 
     private fun containsById (id: String) : Boolean{

@@ -2,7 +2,6 @@ package org.example
 
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Date
 
 fun main(args: Array<String>) {
 
@@ -68,7 +67,7 @@ fun main(args: Array<String>) {
 
     if (isH) {
         println("Saving HTML to path: $hPath")
-        gt.saveAsHtml(cPath ?: tempDir)
+        gt.saveAsHtml(hPath ?: tempDir)
     }
     if (isC) {
         println("Saving CSV to path: $cPath")
