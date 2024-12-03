@@ -1,27 +1,30 @@
 package org.example
 
+import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.cbrt
 
 class GradeTable {
     private var table: List<Evaluation> = emptyList()
 
-    val bySemester: Map<String, List<Evaluation>>
+    private val bySemester: Map<String, List<Evaluation>>
         get() = table.groupBy { it.semester }
 
-    val byGrade: Map<Pair<String, Int>, List<Evaluation>>
+    private val byGrade: Map<Pair<String, Int>, List<Evaluation>>
         get() = table.groupBy { it.grade }.toSortedMap(compareBy { it.second })
 
-    val avgGrade: Double
+    private val avgGrade: Double
         get() = table
             .filter { it.grade.second != -1 }
             .map { it.grade.second }
             .average()
 
-    val sumEcts: Double
+    private val sumEcts: Double
         get() = table.sumOf { it.ects }
 
-    val count: Int  get() = table.size
+    private val count: Int  get() = table.size
 
     init {
 
@@ -96,11 +99,38 @@ class GradeTable {
 
     }
 
+    fun saveAsCsv(path: String){
+
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HHmmss"))
+        val csvFile = File(path, "grade_table_$timestamp.csv")
+
+        csvFile.printWriter().use { writer ->
+            writer.println("lvaName,lvaId,semester,gradeDescription,ects,date")
+
+            // Write data rows
+            table.forEach { eval ->
+                writer.println(
+                    "${eval.lvaName}," +
+                            "${eval.lvaId}," +
+                            "${eval.semester}," +
+                            "${eval.grade.first}," +
+                            "${eval.ects}," +
+                            "${eval.date},"
+                )
+            }
+        }
+
+        println("CSV file saved at: ${csvFile.absolutePath}")
+    }
+
+    fun saveAsHtml(path: String){
+        println("Not implemented yet")
+    }
+
     private fun containsById (id: String) : Boolean{
         table.forEach {
             if (it.id == id) return true
         }
-
         return false
     }
 
