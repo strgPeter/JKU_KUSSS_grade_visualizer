@@ -8,23 +8,25 @@ import kotlin.math.cbrt
 
 class GradeTable {
     private var table: List<Evaluation> = emptyList()
+    val table_: List<Evaluation>
+        get() = this.table.toList()
 
-    private val bySemester: Map<String, List<Evaluation>>
+    val bySemester: Map<String, List<Evaluation>>
         get() = table.groupBy { it.semester }
 
-    private val byGrade: Map<Pair<String, Int>, List<Evaluation>>
+    val byGrade: Map<Pair<String, Int>, List<Evaluation>>
         get() = table.groupBy { it.grade }.toSortedMap(compareBy { it.second })
 
-    private val avgGrade: Double
+    val avgGrade: Double
         get() = table
             .filter { it.grade.second != -1 }
             .map { it.grade.second }
             .average()
 
-    private val sumEcts: Double
+    val sumEcts: Double
         get() = table.sumOf { it.ects }
 
-    private val count: Int  get() = table.size
+    val count: Int  get() = table.size
 
     private val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HHmmss"))
 
@@ -124,7 +126,7 @@ class GradeTable {
     }
 
     fun saveAsHtml(path: String) {
-        val hr = HtmlRenderer()
+        val hr = HtmlRenderer(this)
 
         val htmlFile = File(path, "grades_$timestamp.html")
 
