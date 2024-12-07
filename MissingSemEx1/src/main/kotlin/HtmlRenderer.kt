@@ -3,7 +3,7 @@ package org.example
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 
-class HtmlRenderer (
+class HtmlRenderer(
     val gt: GradeTable
 ) {
     fun generateHtml() = createHTML().html {
@@ -94,7 +94,8 @@ class HtmlRenderer (
                             val color = getColor(evaluation.semester)
 
                             tr {
-                                style = "background-color: ${if (index % 2 == 0) color else color.replace("85%", "95%")};"
+                                style =
+                                    "background-color: ${if (index % 2 == 0) color else color.replace("85%", "95%")};"
                                 td { +evaluation.lvaName }
                                 td { +evaluation.semester }
                                 td { +evaluation.grade.first }
@@ -106,15 +107,9 @@ class HtmlRenderer (
                 }
             }
 
-            h4 {
-                +"Total avg: %.2f".format(gt.avgGrade)
-            }
+            h4 { +"Total avg: %.2f".format(gt.avgGrade) }
+            h4 { +"Total ECTS: ${gt.sumEcts}" }
 
-            h4 {
-                +"Total ECTS: ${gt.sumEcts}"
-            }
-
-            // Add a canvas element for the chart
             div {
                 id = "chart-container"
                 canvas {
@@ -126,27 +121,76 @@ class HtmlRenderer (
                 script {
                     unsafe {
                         +"""
-                            const ctx = document.getElementById('myChart');
-
-                            new Chart(ctx, {
-                                type: 'bar',
-                                data: {
-                                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                                    datasets: [{
-                                        label: '# of Votes',
-                                        data: [12, 19, 3, 5, 2, 3],
-                                        borderWidth: 1
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true
-                                        }
+                        const ctx = document.getElementById('myChart');
+                        
+                        const semesters = ${gt.bySemester.keys.joinToString(prefix = "[", postfix = "]") { "\"$it\"" }};
+                        const avgGrades = ${gt.bySemester.values.joinToString(prefix = "[", postfix = "]") { evaluationList ->
+                                        evaluationList.map { it.grade.second }
+                                            .filter { it != -1 }
+                                            .average()
+                                            .toString()
+                                    }};
+                        const summedEcts = ${gt.bySemester.values.joinToString(prefix = "[", postfix = "]") { evaluationList ->
+                                        evaluationList.sumOf { it.ects }.toString()
+                                    }};
+                        
+                        console.log(semesters);
+                        console.log(avgGrades);
+                        console.log(summedEcts);
+            
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: semesters,
+                                datasets: [
+                                    {
+                                        label: 'Average Grade / semester',
+                                        data: avgGrades,
+                                        borderColor: 'red',
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        yAxisID: 'y',
+                                    },
+                                    {
+                                        label: 'ECTS / semester',
+                                        data: summedEcts,
+                                        borderColor: 'blue',
+                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                        yAxisID: 'y1',
                                     }
-                                }
-                            });
-                        """.trimIndent()
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        type: 'linear',
+                                        position: 'left',
+                                        min: 1,
+                                        max: 5,
+                                        reverse: true,
+                                        ticks: {
+                                            stepSize: 1
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Average Grade / semester',
+                                        },
+                                    },
+                                    y1: {
+                                        type: 'linear',
+                                        position: 'right',
+                                        grid: {
+                                            drawOnChartArea: false, 
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'ECTS / semester', // Add description
+                                        },
+                                    }
+                                },
+                            }
+                        });
+                    """.trimIndent()
                     }
                 }
             }
