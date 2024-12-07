@@ -36,7 +36,7 @@ class HtmlRenderer(
                     }
                     
                     /* Ensure the chart container does not exceed a maximum width */
-                    #chart-container {
+                    .chart-container {
                         max-width: 500px;  /* Maximum width of the chart container */
                     }
 
@@ -110,8 +110,7 @@ class HtmlRenderer(
             h4 { +"Total avg: %.2f".format(gt.avgGrade) }
             h4 { +"Total ECTS: ${gt.sumEcts}" }
 
-            div {
-                id = "chart-container"
+            div(classes = "chart-container") {
                 canvas {
                     id = "myChart"
                     width = "400"
@@ -188,6 +187,60 @@ class HtmlRenderer(
                                         },
                                     }
                                 },
+                            }
+                        });
+                    """.trimIndent()
+                    }
+                }
+            }
+
+            // Bar Chart Container
+            div(classes = "chart-container") {
+                canvas {
+                    id = "barChart"
+                    width = "400"
+                    height = "400"
+                }
+
+                script {
+                    unsafe {
+                        +"""
+                        const ctxBar = document.getElementById('barChart');
+                        
+                        const gradeLabels = ${gt.byGrade.keys.joinToString(prefix = "[", postfix = "]") { "\"${it.first}\"" }};
+                        const gradeCounts = ${gt.byGrade.values.joinToString(prefix = "[", postfix = "]") { it.size.toString() }};
+            
+                        new Chart(ctxBar, {
+                            type: 'bar',
+                            data: {
+                                labels: gradeLabels,
+                                datasets: [
+                                    {
+                                        label: 'Grade Distribution',
+                                        data: gradeCounts,
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Grade Distribution'
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Number of Evaluations'
+                                        }
+                                    }
+                                }
                             }
                         });
                     """.trimIndent()
