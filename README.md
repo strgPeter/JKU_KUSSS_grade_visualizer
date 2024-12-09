@@ -6,6 +6,15 @@ The tool supports different output formats:
 - Export as CSV.  
 - Export as HTML.  
 
+## Prerequisites
+
+- **Java Installation**  
+  Ensure that Java is installed on your system.  
+  You can verify the installation by running the following command:  
+  ```bash
+  java -version  
+  ```
+
 ## Usage
 
 To use the tool, you can either:
@@ -59,3 +68,5 @@ You can use multiple options simultaneously. For example:
 java -jar program.jar -c /csv/path -h /html/path
 ```
 
+## Implementation details:
+- The grade "Mit Erfolg Teilgenommen" is internally represented as -1 and does not influence the calculation of the average. The sum of the ECTS points however, consider these courses.
