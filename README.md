@@ -55,4 +55,7 @@ To specify the output format, use the following parameters:
 
 ### Combinations
 You can use multiple options simultaneously. For example:  
+```bash
 java -jar program.jar -c /csv/path -h /html/path
+```
+
