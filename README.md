@@ -22,26 +22,36 @@ To specify the output format, use the following parameters:
   ```bash
   java -jar program.jar -t  
   ```
-  or simply:  
-  java -jar program.jar  
+  or simply:
+  ```bash
+  java -jar program.jar
+  ```  
 
 - `-c [directory path]`  
   Enables saving the output in CSV format.  
   - Optionally, specify a directory path where the CSV file will be saved.  
   - If no directory is provided, the system's temporary directory will be used as the default.  
   Examples:  
+  ```bash
   java -jar program.jar -c /path/to/directory  
+  ```
   or:  
+  ```bash
   java -jar program.jar -c  
+  ```
 
 - `-h [directory path]`  
   Enables saving the output in HTML format.  
   - Optionally, specify a directory path where the HTML file will be saved.  
   - If no directory is provided, the system's temporary directory will be used as the default.  
   Examples:  
+  ```bash
   java -jar program.jar -h /path/to/directory  
+  ```
   or:  
-  java -jar program.jar -h  
+  ```bash
+  java -jar program.jar -h 
+  ``` 
 
 ### Combinations
 You can use multiple options simultaneously. For example:  
