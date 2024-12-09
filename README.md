@@ -70,3 +70,4 @@ java -jar program.jar -c /csv/path -h /html/path
 
 ## Implementation details:
 - The grade "Mit Erfolg Teilgenommen" is internally represented as -1 and does not influence the calculation of the average. The sum of the ECTS points however, consider these courses.
+- The HTML file is generated with [Kotlinx.html](https://github.com/Kotlin/kotlinx.html)
