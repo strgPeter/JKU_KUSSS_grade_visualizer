@@ -19,7 +19,9 @@ To specify the output format, use the following parameters:
 - `-t`  
   Enables text output. If no other flags (`-c` or `-h`) are specified, the program defaults to this option.  
   Examples:
+  ```bash
   java -jar program.jar -t  
+  ```
   or simply:  
   java -jar program.jar  
 
