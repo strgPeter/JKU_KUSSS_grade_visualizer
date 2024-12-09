@@ -10,7 +10,7 @@ The tool supports different output formats:
 
 To use the tool, you can either:
 1. Download the entire IntelliJ project and build your own `.jar` file.  
-2. Download the prebuilt `.jar` file from [here](out\artifacts\MissingSemEx1_jar\MissingSemEx1.jar).
+2. Download the prebuilt `.jar` file from [here](MissingSemEx1\out\artifacts\MissingSemEx1_jar\).
 
 ### Output Options
 
