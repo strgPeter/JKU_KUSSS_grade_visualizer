@@ -64,17 +64,20 @@ fun main(args: Array<String>) {
 
     // Logic implementation
     val gt = GradeTable()
+    if (gt.table_.isNotEmpty()){
+        if (isT) gt.renderTxt()
 
-    if (isT) gt.renderTxt()
+        if (isH) {
+            println("Saving HTML to path: $hPath")
+            gt.saveAsHtml(hPath ?: tempDir)
+        }
+        if (isC) {
+            println("Saving CSV to path: $cPath")
+            gt.saveAsCsv(cPath ?: tempDir)
+        }
+    }
 
-    if (isH) {
-        println("Saving HTML to path: $hPath")
-        gt.saveAsHtml(hPath ?: tempDir)
-    }
-    if (isC) {
-        println("Saving CSV to path: $cPath")
-        gt.saveAsCsv(cPath ?: tempDir)
-    }
+
 }
 
 /**

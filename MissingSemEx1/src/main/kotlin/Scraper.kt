@@ -36,10 +36,23 @@ class Scraper {
             val kusssStartPage = wCli.getPage<HtmlPage>("https://kusss.jku.at/kusss/index.action")
             val shibbolethLoginPage = clickLogin(kusssStartPage)
             val kusssHomePage = shibbolethLogin(shibbolethLoginPage)
-            //TODO: check if username and pswd are correct
+
+            val errorMessages = kusssHomePage.getByXPath<HtmlElement>(
+                "//section/p[contains(@class, 'form-element') and contains(@class, 'form-error')]"
+            )
+
+            if (errorMessages.isNotEmpty()) {
+                println("Error message(s) found:")
+                errorMessages.forEach { println(it.asNormalizedText()) }
+                throw Exception("Invalid login")
+            }
+
             getGradeInfo(kusssHomePage)
         }catch (e: IOException){
             println("Something went wrong while scraping")
+            println(e.message)
+            null
+        }catch (e: Exception){
             println(e.message)
             null
         }
