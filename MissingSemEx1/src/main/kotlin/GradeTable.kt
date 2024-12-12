@@ -4,9 +4,12 @@ import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.cbrt
 
+/**
+ * Class representing a grade table.
+ */
 class GradeTable {
+
     private var table: List<Evaluation> = emptyList()
     val table_: List<Evaluation>
         get() = this.table.toList()
@@ -30,6 +33,10 @@ class GradeTable {
 
     private val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HHmmss"))
 
+    /**
+     * Initializes the grade table by scraping evaluations from an external source.
+     * If an evaluation exists already the better grade is taken into account.
+     */
     init {
 
         val scraper = Scraper()
@@ -70,6 +77,10 @@ class GradeTable {
 
     }
 
+    /**
+     * Renders the evaluations table in a readable text format.
+     * Prints to std_out
+     */
     fun renderTxt(){
         println("====Your Evaluations====\n")
 
@@ -103,6 +114,11 @@ class GradeTable {
 
     }
 
+    /**
+     * Saves the evaluations table as a CSV file at the specified path.
+     *
+     * @param path the directory where the CSV file will be saved.
+     */
     fun saveAsCsv(path: String){
         val csvFile = File(path, "grade_table_$timestamp.csv")
 
@@ -125,25 +141,29 @@ class GradeTable {
         println("CSV file saved at: ${csvFile.absolutePath}")
     }
 
+    /**
+     * Saves the evaluations table as an HTML file at the specified path.
+     *
+     * @param path the directory where the HTML file will be saved.
+     */
     fun saveAsHtml(path: String) {
         val hr = HtmlRenderer(this)
 
         val htmlFile = File(path, "grades_$timestamp.html")
 
         htmlFile.printWriter().use { writer ->
-            writer.println(hr.generateHtml())
+            writer.println(hr.generateHtml() as String)
         }
 
         println("HTML file saved at: ${htmlFile.absolutePath}")
     }
 
-    private fun containsById (id: String) : Boolean{
-        table.forEach {
-            if (it.id == id) return true
-        }
-        return false
-    }
-
+    /**
+     * Extracts a date from a string in the format "dd.MM.yyyy".
+     *
+     * @param s the string representing a date.
+     * @return the parsed [LocalDate] object.
+     */
     private fun extrDate (s: String) : LocalDate {
         val arr = s.split(".").map { it.toInt() }
 

@@ -1,4 +1,5 @@
 package org.example
+
 import org.htmlunit.BrowserVersion
 import org.htmlunit.DefaultCssErrorHandler
 import org.htmlunit.WebClient
@@ -10,8 +11,16 @@ import java.util.Scanner
 import java.util.logging.Level
 import java.util.logging.Logger
 
+/**
+ * Class responsible for scraping data from the KUSSS system using HtmlUnit.
+ */
 class Scraper {
 
+    /**
+     * Retrieves the grade information table from the KUSSS system.
+     *
+     * @return the grade information as an [HtmlTable] or null if an error occurs.
+     */
     fun getHtmlTable(): HtmlTable? =
         try {
             val wCli = WebClient(BrowserVersion.CHROME)
@@ -35,12 +44,26 @@ class Scraper {
             null
         }
 
+    /**
+     * Navigates to the login page by submitting the login form.
+     *
+     * @param page the initial KUSSS start page.
+     * @return the Shibboleth login page.
+     * @throws IOException if an error occurs during navigation.
+     */
     @Throws(IOException::class)
     private fun clickLogin(page: HtmlPage): HtmlPage {
         val form = page.getFormByName("loginform")
         return form.getInputByValue<HtmlSubmitInput>("Login").click()
     }
 
+    /**
+     * Performs the Shibboleth login by filling out the form with user credentials.
+     *
+     * @param loginPage the Shibboleth login page.
+     * @return the KUSSS home page after successful login.
+     * @throws IOException if an error occurs during login.
+     */
     @Throws(IOException::class)
     private fun shibbolethLogin(loginPage: HtmlPage): HtmlPage {
         val form = loginPage.forms[0]
@@ -56,6 +79,12 @@ class Scraper {
         return submitButton.click()
     }
 
+    /**
+     * Retrieves the grades table from the KUSSS home page.
+     *
+     * @param kusssHomePage the KUSSS home page after login.
+     * @return the grades table as an [HtmlTable].
+     */
     private fun getGradeInfo(kusssHomePage: HtmlPage): HtmlTable {
         val resultsLink: HtmlAnchor = kusssHomePage.getByXPath<HtmlAnchor>("//a[span/text()='Results on my exams']")[0]
         return resultsLink.click<HtmlPage>().getByXPath<HtmlTable>("/html/body/table/tbody/tr[2]/td[2]/table/tbody/tr[2]/td/div/table[2]")[0]

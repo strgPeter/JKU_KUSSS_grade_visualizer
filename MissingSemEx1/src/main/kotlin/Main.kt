@@ -55,10 +55,12 @@ fun main(args: Array<String>) {
     }
 
     // Output for demonstration purposes
+    /*
     println("Flags set:")
     println("-t: $isT")
     println("-c: $isC, cPath: $cPath")
     println("-h: $isH, hPath: $hPath")
+     */
 
     // Logic implementation
     val gt = GradeTable()
@@ -75,6 +77,13 @@ fun main(args: Array<String>) {
     }
 }
 
+/**
+ * Validates a given file path string.
+ *
+ * @param input the string representation of the file path to validate.
+ * @return the normalized absolute path as a string if the input is valid and points to a directory,
+ *         or `null` if the path is invalid or not a directory.
+ */
 fun validatePath(input: String): String? {
     return try {
         val path = Paths.get(input)
