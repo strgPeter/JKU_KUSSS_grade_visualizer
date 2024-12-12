@@ -4,7 +4,7 @@ import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 
 class HtmlRenderer(
-    val gt: GradeTable
+    private val gt: GradeTable
 ) {
     fun generateHtml() = createHTML().html {
 
