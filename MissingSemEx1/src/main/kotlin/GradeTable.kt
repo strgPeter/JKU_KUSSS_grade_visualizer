@@ -47,20 +47,19 @@ class GradeTable {
             val rows = htmlTable.rows.filter { row ->
                 row.cells.any { it.tagName.equals("td", ignoreCase = true) }
             }
-
             table = rows
                 .mapNotNull { row ->
                     val cells = row.cells.map { it.asNormalizedText().trim() }
-                    val evaluation = Evaluation(
-                        lvaName = "${cells[1].substringBefore("(")}- ${cells[4]}",
+                    Evaluation(
+                        lvaName = extractName(cells[1], cells[4]),
+                        //lvaName = "${cells[1].substringBefore("(")}- ${cells[4]}",
                         lvaId = cells[1].substringBefore(",").substringAfter("("),
                         semester = cells[1].substringBefore(")").substringAfter(","),
                         grade = cells[2] to Evaluation.getGradeNumeric(cells[2]),
                         ects = cells[5].replace(',', '.').toDouble(),
                         date = extrDate(cells[0]),
-                        id = cells[3]
+                        id = cells[1].substringAfter("(").substringBefore(",")
                     )
-                    evaluation
                 }
                 .fold(mutableListOf<Evaluation>()) { mListAccumul, newEval ->
                     val existingEval = mListAccumul.find { it.id == newEval.id }
@@ -75,6 +74,14 @@ class GradeTable {
                 .sorted()
         }
 
+    }
+
+    private fun extractName(name: String, type: String) : String{
+        return if (name.startsWith("Special")){
+            "${name.substringAfter(") ")} - $type"
+        }else{
+            "${name.substringBefore("(")}- $type"
+        }
     }
 
     /**
@@ -152,7 +159,7 @@ class GradeTable {
         val htmlFile = File(path, "grades_$timestamp.html")
 
         htmlFile.printWriter().use { writer ->
-            writer.println(hr.generateHtml() as String)
+            writer.println(hr.generateHtml())
         }
 
         println("HTML file saved at: ${htmlFile.absolutePath}")
