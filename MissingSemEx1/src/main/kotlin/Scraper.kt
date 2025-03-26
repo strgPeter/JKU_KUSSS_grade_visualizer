@@ -72,6 +72,7 @@ class Scraper {
 
     /**
      * Performs the Shibboleth login by filling out the form with user credentials.
+     * THIS FUNCTION HAS BEEN UPDATED FOR THE NEW LOGIN PAGE STRUCTURE.
      *
      * @param loginPage the Shibboleth login page.
      * @return the KUSSS home page after successful login.
@@ -79,16 +80,32 @@ class Scraper {
      */
     @Throws(IOException::class)
     private fun shibbolethLogin(loginPage: HtmlPage): HtmlPage {
-        val form = loginPage.forms[0]
+        // Find the login form. Let's assume it's still the first form,
+        // or find it more robustly if possible (e.g., by ID if it has one).
+        val form = loginPage.forms.firstOrNull()
+            ?: throw IOException("Could not find login form on page: ${loginPage.url}")
 
+        // Find elements by name
         val usernameField = form.getInputByName<HtmlTextInput>("j_username")
-        val passwordField = form.getInputByName<HtmlInput>("j_password")
+        val passwordField = form.getInputByName<HtmlPasswordInput>("j_password")
         val dontRememberLogin = form.getInputByName<HtmlCheckBoxInput>("donotcache")
-        val submitButton = form.getInputByValue<HtmlSubmitInput>("Login")
+
+        // Find the submit button. It might be an <input type="submit"> or a <button type="submit">.
+        var submitElement: HtmlElement? = form.querySelector<HtmlButton>("button[type='submit']")
+
+        if (submitElement == null) {
+            // If no <button type="submit">, try <input type="submit">
+            submitElement = form.querySelector<HtmlSubmitInput>("input[type='submit']")
+        }
+
+        // Ensure a submit element was found
+        val submitButton = submitElement
+            ?: throw IOException("Could not find submit button (<button> or <input>) on login page: ${loginPage.url}")
 
         usernameField.valueAttribute = readInput("Enter username: ")
         passwordField.valueAttribute = readInput("Enter password: ")
         dontRememberLogin.isChecked = true
+
         return submitButton.click()
     }
 
